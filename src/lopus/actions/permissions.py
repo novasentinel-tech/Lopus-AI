@@ -1,4 +1,4 @@
-"""Armazenamento simples de permissões para o primeiro runtime de ações."""
+"""Armazenamento de permissões das Actions do Lopus-AI."""
 
 from __future__ import annotations
 
@@ -10,7 +10,15 @@ from lopus.actions.base import Permission
 
 
 class PermissionDeniedError(PermissionError):
-    pass
+    def __init__(self, missing_permissions: Iterable[Permission | str]) -> None:
+        values = tuple(
+            permission.value if isinstance(permission, Permission) else str(permission)
+            for permission in missing_permissions
+        )
+        self.missing_permissions = values
+        super().__init__(
+            "Permissão necessária não concedida: " + ", ".join(values)
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,11 +50,9 @@ class PermissionStore:
         return permission in self._grants
 
     def require(self, *permissions: Permission) -> None:
-        missing = [permission.value for permission in permissions if not self.has(permission)]
+        missing = [permission for permission in permissions if not self.has(permission)]
         if missing:
-            raise PermissionDeniedError(
-                "Permissão necessária não concedida: " + ", ".join(missing)
-            )
+            raise PermissionDeniedError(missing)
 
     def snapshot(self) -> tuple[PermissionGrant, ...]:
         return tuple(sorted(self._grants.values(), key=lambda grant: grant.permission.value))
