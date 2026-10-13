@@ -30,6 +30,21 @@ A CLI anterior continua disponível:
 lopus-cli
 ```
 
+## Testar no GitHub Codespaces
+
+O Codespaces pode ser usado para testar o painel e a navegação sem depender do ambiente desktop real.
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+lopus
+```
+
+O Lopus detecta o Codespaces automaticamente e inicia o NiceGUI em modo web na porta `8080`. Depois, abra a aba **Ports** do Codespaces e use **Open in Browser** na porta `8080`.
+
+Para testar somente a interface, escolha **Continuar em modo demo** no setup inicial. Plugins que dependem do sistema operacional, mouse, aplicativos desktop ou recursos locais devem ser testados na máquina real.
+
 ## Painel local
 
 Na primeira execução, o Lopus abre um assistente de configuração para:
