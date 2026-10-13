@@ -22,7 +22,10 @@ def runtime_from_settings(settings: AppSettings) -> LopusRuntime:
         except ValueError:
             continue
 
-    actions = create_default_action_registry(enabled_features=settings.enabled_features)
+    actions = create_default_action_registry(
+        enabled_features=settings.enabled_features,
+        enabled_plugins=settings.enabled_plugins,
+    )
     return LopusRuntime(
         model=create_model(config),
         memory=SessionMemory(max_messages=config.max_messages),
