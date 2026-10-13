@@ -13,7 +13,7 @@ NATIVE = ROOT / "native"
 
 compile_args = ["/utf-8"] if sys.platform == "win32" else ["-Wall", "-Wextra", "-Wpedantic"]
 define_macros = [("NOMINMAX", "1")] if sys.platform == "win32" else []
-libraries = ["user32"] if sys.platform == "win32" else []
+libraries = ["user32", "gdi32"] if sys.platform == "win32" else []
 
 ext_modules = [
     Pybind11Extension(
@@ -22,6 +22,7 @@ ext_modules = [
             str(NATIVE / "src" / "module.cpp"),
             str(NATIVE / "src" / "system.cpp"),
             str(NATIVE / "src" / "input.cpp"),
+            str(NATIVE / "src" / "screen.cpp"),
         ],
         include_dirs=[str(NATIVE / "include")],
         define_macros=define_macros,
