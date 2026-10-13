@@ -9,7 +9,7 @@ from dataclasses import dataclass, replace
 @dataclass(slots=True)
 class LopusConfig:
     provider: str = "demo"
-    model: str = "llama3.2:3b"
+    model: str = "qwen3:4b"
     ollama_url: str = "http://127.0.0.1:11434"
     max_messages: int = 24
     request_timeout: float = 120.0
@@ -18,7 +18,7 @@ class LopusConfig:
     def from_env(cls) -> "LopusConfig":
         return cls(
             provider=os.getenv("LOPUS_PROVIDER", "demo").strip().lower(),
-            model=os.getenv("LOPUS_MODEL", "llama3.2:3b").strip(),
+            model=os.getenv("LOPUS_MODEL", "qwen3:4b").strip(),
             ollama_url=os.getenv("LOPUS_OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/"),
             max_messages=max(2, int(os.getenv("LOPUS_MAX_MESSAGES", "24"))),
             request_timeout=max(1.0, float(os.getenv("LOPUS_REQUEST_TIMEOUT", "120"))),
