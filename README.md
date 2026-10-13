@@ -2,7 +2,7 @@
 
 O **Lopus-AI** é um projeto pessoal e experimental de inteligência artificial autônoma, criado para estudar e desenvolver, passo a passo, uma base capaz de executar tarefas localmente, utilizar ferramentas autorizadas pelo usuário, reorganizar contexto e coordenar subagentes.
 
-O projeto existe principalmente como espaço de pesquisa, aprendizado e desenvolvimento técnico. **Não possui objetivo financeiro ou comercial nesta fase.**
+O projeto existe principalmente como espaço de pesquisa, aprendizado e desenvolvimento técnico. **Não possui objetivo financeiro ou comercial e não representa uma oferta de produto ou serviço.**
 
 A intenção é construir cada parte de forma progressiva, mantendo a arquitetura compreensível e permitindo que o funcionamento interno do sistema seja estudado durante sua evolução.
 
