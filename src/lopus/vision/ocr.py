@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+import unicodedata
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 from typing import Any, Iterable
@@ -97,6 +99,14 @@ class RapidOCREngine:
             points.append((round(float(point[0])), round(float(point[1]))))
         return tuple(points)
 
+    @staticmethod
+    def normalize_text(value: str) -> str:
+        """Normaliza texto de UI para comparação tolerante a acentos/espaçamento."""
+        decomposed = unicodedata.normalize("NFKD", value.casefold())
+        without_marks = "".join(char for char in decomposed if not unicodedata.combining(char))
+        compact = re.sub(r"[^a-z0-9]+", " ", without_marks)
+        return " ".join(compact.split())
+
     def recognize(self, encoded_image: bytes, *, min_confidence: float = 0.35) -> tuple[OCRRegion, ...]:
         if not 0.0 <= min_confidence <= 1.0:
             raise ValueError("min_confidence deve estar entre 0 e 1.")
@@ -131,21 +141,26 @@ class RapidOCREngine:
             )
         return tuple(regions)
 
-    @staticmethod
+    @classmethod
     def find(
+        cls,
         regions: Iterable[OCRRegion],
         query: str,
         *,
         limit: int = 5,
     ) -> tuple[OCRRegion, ...]:
-        needle = query.strip().casefold()
+        needle = cls.normalize_text(query)
         if not needle:
             return ()
 
         scored: list[tuple[float, OCRRegion]] = []
         for region in regions:
-            haystack = region.text.casefold()
-            if needle in haystack:
+            haystack = cls.normalize_text(region.text)
+            if not haystack:
+                continue
+            if needle == haystack:
+                score = 3.0 + region.confidence
+            elif needle in haystack or haystack in needle:
                 score = 2.0 + region.confidence
             else:
                 ratio = SequenceMatcher(None, needle, haystack).ratio()
