@@ -26,11 +26,11 @@ Isso mantém features e agentes independentes da linguagem usada por baixo.
 pip install -e .
 ```
 
-O setuptools compila `lopus_native` usando pybind11 e C++20.
+O setuptools tenta compilar `lopus_native` usando pybind11 e C++20. A extensão foi marcada como opcional no processo de instalação: se o compilador nativo não estiver disponível, o restante do Lopus continua instalável e o painel informa que o Native Core está indisponível.
 
 ### Windows
 
-É necessário um compilador MSVC. O caminho recomendado é instalar **Visual Studio Build Tools** com **Desktop development with C++**.
+Para utilizar o Native Core é necessário um compilador MSVC. O caminho recomendado é instalar **Visual Studio Build Tools** com **Desktop development with C++**. O módulo é linkado explicitamente com `User32` para as primitivas de cursor e tela.
 
 ### Codespaces / Linux
 
@@ -68,3 +68,7 @@ O backend nativo não ignora o sistema de permissões do Lopus. Features devem u
 O movimento implementado nesta versão controla o cursor real do Windows. Ele **ainda não é o segundo ponteiro virtual** planejado para o Lopus.
 
 O segundo ponteiro será uma camada própria, provavelmente combinando estado virtual, overlay e um executor nativo autorizado.
+
+## Validação automática
+
+O workflow `.github/workflows/native-ci.yml` compila o projeto em Ubuntu e Windows, em Python 3.11 e 3.12, importa `lopus_native` e executa a suíte de testes. Isso ajuda a evitar regressões entre a camada Python e o backend C++.

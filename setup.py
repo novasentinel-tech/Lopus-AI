@@ -13,6 +13,7 @@ NATIVE = ROOT / "native"
 
 compile_args = ["/utf-8"] if sys.platform == "win32" else ["-Wall", "-Wextra", "-Wpedantic"]
 define_macros = [("NOMINMAX", "1")] if sys.platform == "win32" else []
+libraries = ["user32"] if sys.platform == "win32" else []
 
 ext_modules = [
     Pybind11Extension(
@@ -24,8 +25,10 @@ ext_modules = [
         ],
         include_dirs=[str(NATIVE / "include")],
         define_macros=define_macros,
+        libraries=libraries,
         extra_compile_args=compile_args,
         cxx_std=20,
+        optional=True,
     )
 ]
 
