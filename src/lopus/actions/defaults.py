@@ -1,5 +1,7 @@
 """Fábrica do conjunto inicial de ações do Lopus."""
 
+from collections.abc import Iterable
+
 from lopus.actions.filesystem import InspectPathAction, ReadTextFileAction, WriteTextFileAction
 from lopus.actions.native_input import (
     ClickAction,
@@ -16,10 +18,19 @@ from lopus.native import NativeBridge
 from lopus.vision import RapidOCREngine
 
 
-def create_default_action_registry() -> ActionRegistry:
+def create_default_action_registry(
+    *,
+    enabled_features: Iterable[str] | None = None,
+) -> ActionRegistry:
+    """Cria o registry padrão.
+
+    ``enabled_features=None`` mantém todas as features experimentais disponíveis,
+    útil para CLI/testes. Quando uma coleção é informada (painel), apenas as
+    Actions condicionais das features habilitadas são registradas.
+    """
     registry = ActionRegistry()
     native = NativeBridge()
-    ocr = RapidOCREngine()
+    feature_set = None if enabled_features is None else {item.strip() for item in enabled_features}
 
     registry.register(InspectPathAction())
     registry.register(ReadTextFileAction())
@@ -33,7 +44,10 @@ def create_default_action_registry() -> ActionRegistry:
     registry.register(ClickAction(native))
     registry.register(TypeTextAction(native))
 
-    registry.register(CaptureScreenAction(native))
-    registry.register(ReadScreenAction(native, ocr))
-    registry.register(FindTextOnScreenAction(native, ocr))
+    if feature_set is None or "screen_perception" in feature_set:
+        ocr = RapidOCREngine()
+        registry.register(CaptureScreenAction(native))
+        registry.register(ReadScreenAction(native, ocr))
+        registry.register(FindTextOnScreenAction(native, ocr))
+
     return registry
