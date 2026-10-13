@@ -1,0 +1,8 @@
+{
+  "id": "screen_perception",
+  "name": "Percepção de Tela",
+  "description": "Permite ao agente capturar a tela local, reconhecer textos por OCR e localizar elementos visuais por coordenadas.",
+  "version": "0.1.0",
+  "permissions": ["screen.capture"],
+  "enabled_by_default": false
+}
