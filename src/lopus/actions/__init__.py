@@ -5,8 +5,10 @@ from lopus.actions.defaults import create_default_action_registry
 from lopus.actions.native_input import (
     ClickAction,
     CursorPositionAction,
+    HotkeyAction,
     MoveCursorAction,
     NativeSystemInfoAction,
+    PressKeyAction,
     TypeTextAction,
 )
 from lopus.actions.permissions import PermissionDeniedError, PermissionStore
@@ -29,11 +31,13 @@ __all__ = [
     "ClickTextAction",
     "CursorPositionAction",
     "FindTextOnScreenAction",
+    "HotkeyAction",
     "MoveCursorAction",
     "NativeSystemInfoAction",
     "Permission",
     "PermissionDeniedError",
     "PermissionStore",
+    "PressKeyAction",
     "ReadScreenAction",
     "TypeTextAction",
     "create_default_action_registry",
