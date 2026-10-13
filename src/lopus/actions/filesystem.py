@@ -9,14 +9,20 @@ from lopus.actions.base import Action, ActionContext, ActionError, ActionResult,
 
 class InspectPathAction(Action):
     name = "file.inspect"
-    description = "Inspeciona metadados básicos de um caminho local."
+    description = "Inspeciona metadados básicos de um arquivo ou diretório local."
     required_permissions = frozenset({Permission.FILE_READ})
+    agent_exposed = True
+    parameters_schema = {
+        "type": "object",
+        "properties": {"path": {"type": "string", "description": "Caminho local a inspecionar."}},
+        "required": ["path"],
+        "additionalProperties": False,
+    }
 
     def execute(self, context: ActionContext, *, path: str) -> ActionResult:
         target = Path(path).expanduser().resolve()
         if not target.exists():
             raise ActionError(f"Caminho não encontrado: {target}")
-
         return ActionResult(
             success=True,
             action=self.name,
@@ -34,27 +40,28 @@ class InspectPathAction(Action):
 
 class ReadTextFileAction(Action):
     name = "file.read_text"
-    description = "Lê um arquivo de texto local dentro do limite configurado."
+    description = "Lê um arquivo de texto local. Use somente quando precisar do conteúdo textual."
     required_permissions = frozenset({Permission.FILE_READ})
+    agent_exposed = True
+    parameters_schema = {
+        "type": "object",
+        "properties": {
+            "path": {"type": "string"},
+            "encoding": {"type": "string", "default": "utf-8"},
+        },
+        "required": ["path"],
+        "additionalProperties": False,
+    }
 
     def __init__(self, *, max_bytes: int = 1_000_000) -> None:
         self.max_bytes = max_bytes
 
-    def execute(
-        self,
-        context: ActionContext,
-        *,
-        path: str,
-        encoding: str = "utf-8",
-    ) -> ActionResult:
+    def execute(self, context: ActionContext, *, path: str, encoding: str = "utf-8") -> ActionResult:
         target = Path(path).expanduser().resolve()
         if not target.is_file():
             raise ActionError(f"Arquivo não encontrado: {target}")
         if target.stat().st_size > self.max_bytes:
-            raise ActionError(
-                f"Arquivo excede o limite de {self.max_bytes} bytes para leitura textual."
-            )
-
+            raise ActionError(f"Arquivo excede o limite de {self.max_bytes} bytes para leitura textual.")
         content = target.read_text(encoding=encoding)
         return ActionResult(
             success=True,
@@ -66,8 +73,20 @@ class ReadTextFileAction(Action):
 
 class WriteTextFileAction(Action):
     name = "file.write_text"
-    description = "Cria ou substitui um arquivo de texto quando autorizado."
+    description = "Cria ou substitui um arquivo de texto quando explicitamente autorizado."
     required_permissions = frozenset({Permission.FILE_WRITE})
+    agent_exposed = True
+    parameters_schema = {
+        "type": "object",
+        "properties": {
+            "path": {"type": "string"},
+            "content": {"type": "string"},
+            "encoding": {"type": "string", "default": "utf-8"},
+            "overwrite": {"type": "boolean", "default": False},
+        },
+        "required": ["path", "content"],
+        "additionalProperties": False,
+    }
 
     def execute(
         self,
@@ -80,12 +99,9 @@ class WriteTextFileAction(Action):
     ) -> ActionResult:
         target = Path(path).expanduser().resolve()
         if target.exists() and not overwrite:
-            raise ActionError(
-                "O arquivo já existe. Defina overwrite=True para substituir explicitamente."
-            )
+            raise ActionError("O arquivo já existe. Defina overwrite=True para substituir explicitamente.")
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(content, encoding=encoding)
-
         return ActionResult(
             success=True,
             action=self.name,
