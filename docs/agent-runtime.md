@@ -87,7 +87,9 @@ O resultado volta ao modelo como uma observação da ferramenta. O modelo pode e
 - `gui.cursor_position`: lê a posição do cursor;
 - `gui.move_cursor`: move o cursor por coordenada;
 - `gui.click`: move e clica por coordenada;
-- `gui.type_text`: digita texto Unicode no foco atual.
+- `gui.type_text`: digita texto Unicode no foco atual;
+- `gui.press_key`: pressiona Enter, Tab, Escape, setas, F1-F24 etc.;
+- `gui.hotkey`: executa combinações curtas como `Ctrl+L` e `Ctrl+A`.
 
 ## Limites do loop
 
@@ -100,6 +102,12 @@ Para reduzir loops acidentais:
 - Actions não marcadas como `agent_exposed` nunca aparecem para o modelo.
 
 `system.run_command`, por exemplo, existe para fluxos controlados, mas não é exposta ao agente autônomo por padrão.
+
+## Permissões solicitadas durante o Chat
+
+Quando uma Action falha porque falta permissão, o erro guarda uma lista estruturada de permissões ausentes. O Chat mostra isso no rastro da tarefa e oferece botões para conceder cada permissão. A permissão concedida é salva em `~/.lopus/settings.json` e aplicada imediatamente ao runtime daquela conversa.
+
+A tarefa não é repetida automaticamente depois da concessão: o usuário ainda decide se deseja reenviar a solicitação.
 
 ## Percepção de tela
 
