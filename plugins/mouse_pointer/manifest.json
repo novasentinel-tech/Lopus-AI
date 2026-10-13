@@ -1,7 +1,7 @@
 {
   "id": "mouse_pointer",
-  "name": "Ponteiro virtual",
-  "description": "Controle gráfico autorizado para interações com a interface do computador.",
-  "version": "0.1.0",
+  "name": "Controle do ponteiro",
+  "description": "Permite controlar o cursor real do sistema. O segundo ponteiro virtual independente ainda é uma etapa futura.",
+  "version": "0.2.0",
   "permissions": ["gui.control"]
 }
