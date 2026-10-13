@@ -140,14 +140,18 @@ class AgentExecutor:
                     message = result.message
                     result_data = dict(result.data)
                 except PermissionDeniedError as exc:
+                    result_data = {
+                        "error": "permission_denied",
+                        "missing_permissions": list(exc.missing_permissions),
+                    }
                     payload = {
                         "success": False,
                         "error": "permission_denied",
                         "message": str(exc),
+                        "missing_permissions": list(exc.missing_permissions),
                     }
                     success = False
                     message = str(exc)
-                    result_data = {}
                 except (ActionError, KeyError, PermissionError, TypeError, ValueError) as exc:
                     payload = {
                         "success": False,
@@ -156,7 +160,7 @@ class AgentExecutor:
                     }
                     success = False
                     message = str(exc)
-                    result_data = {}
+                    result_data = {"error": type(exc).__name__}
                 except Exception as exc:  # barreira para não derrubar o loop inteiro
                     payload = {
                         "success": False,
@@ -165,7 +169,7 @@ class AgentExecutor:
                     }
                     success = False
                     message = payload["message"]
-                    result_data = {}
+                    result_data = {"error": "action_internal_error"}
 
                 conversation.append(
                     {
