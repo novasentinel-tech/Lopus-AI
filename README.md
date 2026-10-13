@@ -1,43 +1,51 @@
 # Lopus-AI
 
-O **Lopus-AI** é um projeto experimental de inteligência artificial autônoma com foco em construir, passo a passo, um **coworker digital local**.
+O **Lopus-AI** é um projeto pessoal e experimental de inteligência artificial autônoma, criado para estudar e desenvolver, passo a passo, uma base capaz de executar tarefas localmente, utilizar ferramentas autorizadas pelo usuário, reorganizar contexto e coordenar subagentes.
 
-A proposta inicial do projeto não é criar um novo modelo de linguagem do zero. O objetivo é desenvolver uma base modular capaz de utilizar modelos de IA, memória, ferramentas, plugins e subagentes para executar tarefas de forma progressivamente mais autônoma.
+O projeto existe principalmente como espaço de pesquisa, aprendizado e desenvolvimento técnico. **Não possui objetivo financeiro ou comercial nesta fase.**
 
-> **Estado atual:** estrutura inicial do projeto. Os módulos permanecem propositalmente simples para que sejam implementados, testados e documentados individualmente durante a evolução do Lopus.
+A intenção é construir cada parte de forma progressiva, mantendo a arquitetura compreensível e permitindo que o funcionamento interno do sistema seja estudado durante sua evolução.
 
-## Objetivos
+> **Estado atual:** estrutura inicial. Os módulos ainda serão implementados e testados individualmente.
 
-- Desenvolver o projeto publicamente como parte de um portfólio técnico.
-- Manter uma arquitetura modular e compreensível.
-- Permitir que o Lopus evolua para execução local na máquina do usuário.
-- Implementar cada capacidade de forma incremental.
-- Separar claramente capacidades internas, ferramentas e acessos externos.
-- Permitir que o usuário controle quais recursos do computador e serviços externos a IA pode acessar.
-- Explorar criação de subagentes para dividir tarefas complexas.
-- Reduzir desperdício de contexto por meio de reorganização e compactação inteligente das conversas.
+## Ideia central
 
-## Conceito
+O Lopus-AI pretende evoluir para um agente local capaz de trabalhar de maneira mais autônoma dentro dos limites e permissões definidos pelo usuário.
 
-O Lopus deverá funcionar como uma camada de coordenação entre o usuário, modelos de IA e diferentes capacidades disponíveis no sistema.
+Em vez de concentrar toda a lógica em um único componente, o projeto será dividido em módulos independentes responsáveis por tarefas como:
 
-Uma tarefa poderá envolver, por exemplo:
+- gerenciamento do runtime principal;
+- comunicação com modelos de IA;
+- memória e preservação de contexto;
+- reorganização de conversas extensas;
+- criação e coordenação de subagentes;
+- uso de ferramentas internas;
+- plugins para interação com o computador e serviços externos;
+- controle explícito de permissões.
 
-1. compreender o objetivo do usuário;
-2. reorganizar o contexto atual;
-3. decidir se a tarefa deve ser dividida;
-4. criar subagentes quando necessário;
-5. identificar quais ferramentas ou plugins são necessários;
-6. solicitar permissões ao usuário;
-7. executar as ações autorizadas;
-8. reunir os resultados novamente no agente principal.
+## Funcionamento planejado
+
+Uma tarefa poderá seguir um fluxo semelhante a:
+
+1. receber um objetivo do usuário;
+2. interpretar o contexto disponível;
+3. reorganizar ou resumir informações quando necessário;
+4. decidir se a tarefa deve ser dividida;
+5. criar subagentes especializados quando fizer sentido;
+6. identificar ferramentas ou plugins necessários;
+7. solicitar ao usuário as permissões exigidas;
+8. executar apenas as ações autorizadas;
+9. acompanhar o progresso;
+10. reunir os resultados no agente principal.
+
+Nada relacionado ao acesso ao computador ou a serviços externos deverá ser considerado automaticamente autorizado.
 
 ## Estrutura atual
 
 ```text
 Lopus-AI/
 ├── docs/                       # Arquitetura e decisões técnicas
-├── examples/                   # Exemplos pequenos de uso
+├── examples/                   # Exemplos de uso
 │
 ├── features/                   # Capacidades internas do Lopus
 │   ├── README.md
@@ -68,62 +76,66 @@ Lopus-AI/
 
 ## Features
 
-A pasta `features/` reúne capacidades que pertencem ao próprio funcionamento do Lopus.
+A pasta `features/` reúne capacidades pertencentes ao funcionamento interno do Lopus.
 
 ### Reorganização de contexto
 
 `features/context_reorganization.py`
 
-Essa feature deverá analisar o histórico da conversa e reorganizar as informações utilizadas pelo modelo. A ideia é preservar objetivos, decisões, restrições, tarefas pendentes e dados importantes enquanto reduz informações redundantes ou pouco relevantes.
+Essa feature será responsável por analisar conversas ou sessões extensas e reorganizar as informações relevantes para o modelo.
 
-Isso permitirá utilizar a janela de contexto de forma mais eficiente e diminuir o consumo desnecessário de tokens conforme uma sessão cresce.
+A intenção é preservar elementos como objetivos, decisões, restrições, tarefas pendentes e informações importantes enquanto reduz redundância e conteúdo pouco útil para a execução atual.
+
+Esse mecanismo também poderá ajudar a diminuir o desperdício de tokens e permitir sessões mais longas sem carregar continuamente todo o histórico bruto.
 
 ### Subagentes
 
 `features/subagents.py`
 
-O Lopus poderá decidir que uma tarefa deve ser dividida em partes menores e criar subagentes especializados para trabalhar nelas.
+O agente principal poderá dividir determinadas tarefas em partes menores e criar subagentes temporários para executá-las.
 
-Cada subagente deverá receber apenas o contexto, objetivo e permissões necessários para sua tarefa. O agente principal continuará responsável por acompanhar os resultados e consolidar o trabalho realizado.
+Cada subagente deverá receber apenas o contexto, objetivo, ferramentas e permissões necessários para sua função. O agente principal continuará responsável por acompanhar e consolidar os resultados.
 
 ## Plugins
 
-A pasta `plugins/` representa capacidades que conectam o Lopus ao computador ou a serviços externos.
+A pasta `plugins/` reúne módulos que conectam o Lopus ao sistema operacional ou a serviços externos.
 
-Plugins deverão operar dentro de um sistema explícito de permissões. O acesso a um recurso não deverá ser considerado automaticamente autorizado apenas porque o plugin está instalado.
+Plugins deverão depender de permissões explícitas do usuário e operar somente dentro do escopo autorizado.
 
 ### Permissões
 
 `plugins/permissions.py`
 
-Será responsável por controlar quais capacidades foram autorizadas pelo usuário, por quanto tempo e em qual escopo.
+Responsável por controlar quais capacidades externas estão disponíveis para o Lopus, além do escopo e duração de cada autorização.
 
 ### Ponteiro virtual
 
 `plugins/mouse_pointer.py`
 
-A proposta é permitir que o Lopus tenha um **ponteiro virtual independente** para executar interações visuais autorizadas na interface do computador sem depender diretamente do ponteiro principal utilizado pelo usuário.
+Experimento planejado para permitir que o Lopus opere um **ponteiro virtual independente**, destinado a interações visuais autorizadas com a interface do computador.
 
-Esse módulo deverá possuir mecanismos claros de autorização, limitação e interrupção imediata.
+A implementação deverá possuir mecanismos claros de autorização, limitação, observação e interrupção imediata pelo usuário.
 
 ### Google Drive
 
 `plugins/google_drive.py`
 
-Integração planejada para permitir que o Lopus trabalhe com arquivos do Google Drive após autorização do usuário.
+Integração planejada para permitir que o Lopus trabalhe com arquivos do Google Drive quando autorizado.
 
-A intenção é permitir fluxos como localizar documentos, criar arquivos, editar conteúdos, organizar pastas ou trabalhar durante uma tarefa mais longa sem exigir interação manual em cada etapa.
+A ideia é estudar fluxos em que o agente possa localizar, organizar, criar ou editar conteúdos durante uma tarefa, sem expor credenciais e tokens desnecessariamente ao modelo de linguagem.
 
-Credenciais, sessões e tokens de autenticação deverão ser tratados por uma camada segura e não deverão ser enviados desnecessariamente ao modelo de IA.
+## Desenvolvimento
 
-## Filosofia de desenvolvimento
+O Lopus-AI será desenvolvido de forma incremental.
 
-O projeto começa propositalmente pequeno.
+A prioridade é compreender e implementar cada módulo individualmente antes de adicionar novas camadas de complexidade. Mudanças de arquitetura, experimentos que não funcionarem e decisões técnicas relevantes poderão ser documentados junto com a evolução do projeto.
 
-A ideia é construir cada módulo separadamente, entender sua função, implementar a lógica manualmente, testar e só então conectar a próxima parte do sistema.
+O fato de o código estar disponível publicamente neste repositório tem finalidade de acompanhamento e demonstração do desenvolvimento e **não concede autorização para reutilização**.
 
-O Lopus-AI será desenvolvido como um projeto em evolução contínua, documentando tanto decisões corretas quanto mudanças de arquitetura feitas durante o processo.
+## Licença e uso do código
 
-## Licença
+Este projeto utiliza uma **licença proprietária de uso restrito**.
 
-Consulte o arquivo [LICENSE](LICENSE).
+O código pode ser visualizado neste repositório, porém não é software livre nem open source. Nenhuma permissão é concedida para copiar, reutilizar, executar, modificar, redistribuir, sublicenciar, incorporar ou criar trabalhos derivados a partir do código, total ou parcialmente, sem autorização prévia e expressa do titular dos direitos.
+
+Consulte os termos completos em [LICENSE](LICENSE).
