@@ -15,6 +15,8 @@ std::pair<int, int> cursor_position();
 bool move_cursor(int x, int y);
 bool click_mouse(const std::string& button);
 bool type_text_utf8(const std::string& text);
+bool press_key(const std::string& key);
+bool hotkey(const std::vector<std::string>& keys);
 std::pair<int, int> primary_screen_size();
 
 bool screen_capture_supported();
