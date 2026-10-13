@@ -1,3 +1,3 @@
-"""Lopus-AI package."""
+"""Pacote principal do Lopus-AI."""
 
-__version__ = "0.0.1"
+__version__ = "0.1.0"
