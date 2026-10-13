@@ -12,7 +12,7 @@ from typing import Any
 class AppSettings:
     setup_complete: bool = False
     provider: str = "demo"
-    model: str = "llama3.2:3b"
+    model: str = "qwen3:4b"
     enabled_features: list[str] = field(default_factory=list)
     enabled_plugins: list[str] = field(default_factory=list)
     granted_permissions: list[str] = field(default_factory=list)
@@ -22,7 +22,7 @@ class AppSettings:
         return cls(
             setup_complete=bool(data.get("setup_complete", False)),
             provider=str(data.get("provider", "demo")),
-            model=str(data.get("model", "llama3.2:3b")),
+            model=str(data.get("model", "qwen3:4b")),
             enabled_features=list(data.get("enabled_features", [])),
             enabled_plugins=list(data.get("enabled_plugins", [])),
             granted_permissions=list(data.get("granted_permissions", [])),
