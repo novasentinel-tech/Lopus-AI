@@ -13,7 +13,12 @@ from lopus.actions.native_input import (
 from lopus.actions.open_path import OpenPathAction
 from lopus.actions.registry import ActionRegistry
 from lopus.actions.shell import RunCommandAction
-from lopus.actions.vision import CaptureScreenAction, FindTextOnScreenAction, ReadScreenAction
+from lopus.actions.vision import (
+    CaptureScreenAction,
+    ClickTextAction,
+    FindTextOnScreenAction,
+    ReadScreenAction,
+)
 from lopus.native import NativeBridge
 from lopus.vision import RapidOCREngine
 
@@ -49,5 +54,6 @@ def create_default_action_registry(
         registry.register(CaptureScreenAction(native))
         registry.register(ReadScreenAction(native, ocr))
         registry.register(FindTextOnScreenAction(native, ocr))
+        registry.register(ClickTextAction(native, ocr))
 
     return registry
