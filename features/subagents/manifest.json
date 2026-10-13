@@ -1,0 +1,8 @@
+{
+  "id": "subagents",
+  "name": "Subagentes",
+  "description": "Cria e coordena agentes especializados para tarefas específicas.",
+  "version": "0.1.0",
+  "enabled_by_default": false,
+  "permissions": []
+}

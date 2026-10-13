@@ -1,0 +1,7 @@
+{
+  "id": "shell",
+  "name": "Terminal local",
+  "description": "Permite que ações autorizadas utilizem Bash ou PowerShell.",
+  "version": "0.1.0",
+  "permissions": ["shell.execute"]
+}

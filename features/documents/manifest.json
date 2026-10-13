@@ -1,0 +1,8 @@
+{
+  "id": "documents",
+  "name": "Documentos",
+  "description": "Inspeção, abertura e futura criação e edição estruturada de documentos.",
+  "version": "0.1.0",
+  "enabled_by_default": false,
+  "permissions": ["file.read", "file.write", "file.open"]
+}

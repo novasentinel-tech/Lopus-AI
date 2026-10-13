@@ -1,25 +1,10 @@
 # Lopus-AI
 
-O **Lopus-AI** é um projeto pessoal e experimental de inteligência artificial autônoma, criado para estudar uma arquitetura local, modular e progressivamente capaz de executar tarefas com modelos de IA, memória, ações, features, plugins e subagentes.
+O **Lopus-AI** é um projeto pessoal e experimental de inteligência artificial autônoma, criado para estudar e desenvolver um agente local, modular e progressivamente capaz de utilizar modelos de IA, memória, ações, features, plugins e subagentes.
 
 O projeto existe como espaço de pesquisa, aprendizado e desenvolvimento técnico. **Não possui objetivo financeiro ou comercial e não representa uma oferta de produto ou serviço.**
 
-> **Versão atual:** `0.2.0` — runtime funcional de terminal + primeira camada de ações utilitárias e permissões.
-
-## O que já funciona
-
-- interface de terminal (`lopus`);
-- runtime central;
-- memória volátil da sessão;
-- provider de demonstração e provider local via Ollama;
-- registro de ações utilitárias;
-- permissões de sessão;
-- leitura, escrita e inspeção básica de arquivos de texto;
-- abertura de arquivos/pastas pelo sistema;
-- execução explícita de comandos com permissão;
-- estrutura modular de features;
-- perfis iniciais de subagentes;
-- testes básicos de memória, runtime e ações.
+> **Estado atual:** painel desktop local em NiceGUI + runtime funcional + integração com modelos locais por Ollama.
 
 ## Executar
 
@@ -29,99 +14,90 @@ Requer Python 3.11 ou superior.
 python -m venv .venv
 ```
 
-No Windows:
+Windows:
 
-```bash
+```powershell
 .venv\Scripts\activate
 pip install -e .
 lopus
 ```
 
-Para usar um modelo local com Ollama:
+`lopus` abre o painel local em modo nativo.
+
+A CLI anterior continua disponível:
 
 ```bash
-lopus --provider ollama --model seu-modelo
+lopus-cli
 ```
 
-## Permissões no terminal
+## Painel local
 
-As ações externas começam sem permissão.
+Na primeira execução, o Lopus abre um assistente de configuração para:
 
-Exemplo para permitir que o runtime abra um arquivo durante a sessão:
+1. detectar o Ollama;
+2. escolher um modelo local;
+3. baixar o modelo;
+4. definir o modelo ativo;
+5. entrar no painel principal.
+
+O painel atual contém:
+
+- **Início** — resumo do estado do sistema;
+- **Chat** — conversa com o runtime configurado;
+- **Modelos** — modelos instalados e catálogo sugerido;
+- **Features** — capacidades internas descobertas por manifest;
+- **Plugins** — integrações externas e permissões do runtime.
+
+As configurações são persistidas localmente em `~/.lopus/settings.json`.
+
+## Arquitetura
 
 ```text
-/grant file.open
-/open "C:\caminho\arquivo.docx"
+Usuário
+  ↓
+NiceGUI
+  ↓
+Lopus Runtime
+  ├── Model Provider
+  ├── Memory
+  ├── Action Registry
+  └── Permission Store
+        ↓
+Features
+  ├── context_reorganization/
+  ├── documents/
+  └── subagents/
+        ↓
+Actions
+        ↓
+Plugins / sistema operacional
 ```
 
-Use `/permissions` para conferir permissões e `/revoke file.open` para revogar.
+### Features
 
-## Organização
+Cada feature possui sua própria pasta e um `manifest.json`. O painel descobre esses manifests automaticamente.
 
-```text
-Lopus-AI/
-├── docs/
-│   ├── architecture.md
-│   ├── actions.md
-│   └── mvp.md
-├── features/
-│   ├── context_reorganization/
-│   │   └── feature.py
-│   ├── documents/
-│   │   ├── feature.py
-│   │   └── structure.py
-│   └── subagents/
-│       ├── manager.py
-│       └── models-subagents/
-│           ├── mathematics.json
-│           ├── documents.json
-│           ├── programming.json
-│           └── screen_organization.json
-├── plugins/
-│   ├── permissions.py
-│   ├── mouse_pointer.py
-│   └── google_drive.py
-├── src/lopus/
-│   ├── actions/
-│   ├── agents/
-│   ├── core/
-│   ├── interfaces/
-│   ├── memory/
-│   ├── models/
-│   └── tools/
-└── tests/
-```
+### Actions
 
-## Actions, Features e Plugins
+Ações são operações utilitárias reutilizáveis, como `file.inspect`, `file.read_text`, `file.write_text`, `file.open` e `system.run_command`. Uma feature solicita uma ação; a ação valida permissões e decide como executar.
 
-**Action** é uma operação reutilizável e pequena, como `file.open` ou `file.read_text`.
+### Plugins
 
-**Feature** é uma capacidade maior, como trabalhar com documentos. Ela combina estrutura, regras e várias ações.
+Plugins representam acesso a recursos externos ou ao sistema operacional. Ativar um plugin **não concede automaticamente suas permissões**.
 
-**Plugin** conecta o Lopus a algo externo, como GUI, Google Drive ou outro serviço. O plugin não deve ganhar acesso automaticamente: as permissões continuam sob controle do usuário.
+## Modelos locais
 
-Isso permite que uma feature de documentos peça apenas:
+O painel usa o Ollama como primeiro runtime local. O catálogo inicial contém sugestões compactas, mas outros modelos instalados no Ollama também podem ser usados.
 
-```text
-"abra este documento"
-```
+## Documentação
 
-sem precisar saber se o runtime vai usar integração nativa do sistema, PowerShell/Bash ou, futuramente, cliques por um controlador gráfico autorizado.
-
-## Subagentes
-
-A feature `subagents/` possui perfis especializados iniciais para matemática, documentos, programação e organização da tela.
-
-Esses perfis não são modelos treinados e não recebem permissões automaticamente. Eles descrevem funções especializadas que poderão ser atribuídas a agentes temporários no futuro.
-
-## Desenvolvimento
-
-O Lopus será evoluído feature por feature. A intenção é melhorar cada módulo isoladamente antes de aumentar a autonomia do sistema.
-
-A arquitetura de ações está documentada em [`docs/actions.md`](docs/actions.md).
+- [`docs/mvp.md`](docs/mvp.md)
+- [`docs/actions.md`](docs/actions.md)
+- [`docs/ui.md`](docs/ui.md)
+- [`docs/architecture.md`](docs/architecture.md)
 
 ## Licença e uso do código
 
 Este projeto utiliza uma **licença proprietária de uso restrito**. O fato de o repositório estar publicamente visível não concede autorização para reutilizar o código.
 
-Consulte os termos completos em [LICENSE](LICENSE).
+Consulte [LICENSE](LICENSE).

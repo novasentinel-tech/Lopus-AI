@@ -1,0 +1,7 @@
+{
+  "id": "google_drive",
+  "name": "Google Drive",
+  "description": "Integração planejada para arquivos e pastas do Google Drive.",
+  "version": "0.1.0",
+  "permissions": ["file.read", "file.write"]
+}

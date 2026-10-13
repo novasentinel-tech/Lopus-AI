@@ -1,0 +1,7 @@
+{
+  "id": "mouse_pointer",
+  "name": "Ponteiro virtual",
+  "description": "Controle gráfico autorizado para interações com a interface do computador.",
+  "version": "0.1.0",
+  "permissions": ["gui.control"]
+}

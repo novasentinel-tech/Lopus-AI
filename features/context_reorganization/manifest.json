@@ -1,0 +1,8 @@
+{
+  "id": "context_reorganization",
+  "name": "Reorganização de contexto",
+  "description": "Organiza e compacta contexto extenso preservando informações importantes.",
+  "version": "0.1.0",
+  "enabled_by_default": false,
+  "permissions": []
+}
