@@ -6,8 +6,10 @@ from lopus.actions.filesystem import InspectPathAction, ReadTextFileAction, Writ
 from lopus.actions.native_input import (
     ClickAction,
     CursorPositionAction,
+    HotkeyAction,
     MoveCursorAction,
     NativeSystemInfoAction,
+    PressKeyAction,
     TypeTextAction,
 )
 from lopus.actions.open_path import OpenPathAction
@@ -59,6 +61,8 @@ def create_default_action_registry(
 
     if plugin_enabled("keyboard_input"):
         registry.register(TypeTextAction(native))
+        registry.register(PressKeyAction(native))
+        registry.register(HotkeyAction(native))
 
     if feature_enabled("screen_perception") and plugin_enabled("screen_capture"):
         ocr = RapidOCREngine()
