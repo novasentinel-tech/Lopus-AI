@@ -7,7 +7,7 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(lopus_native, module) {
     module.doc() = "Backend C++ de baixo nível do Lopus-AI";
-    module.attr("__version__") = "0.2.0";
+    module.attr("__version__") = "0.3.0";
 
     module.def("platform_name", &lopus_native::platform_name);
     module.def("process_id", &lopus_native::process_id);
@@ -17,6 +17,8 @@ PYBIND11_MODULE(lopus_native, module) {
     module.def("move_cursor", &lopus_native::move_cursor, py::arg("x"), py::arg("y"));
     module.def("click_mouse", &lopus_native::click_mouse, py::arg("button") = "left");
     module.def("type_text_utf8", &lopus_native::type_text_utf8, py::arg("text"));
+    module.def("press_key", &lopus_native::press_key, py::arg("key"));
+    module.def("hotkey", &lopus_native::hotkey, py::arg("keys"));
     module.def("primary_screen_size", &lopus_native::primary_screen_size);
     module.def(
         "capture_primary_screen_bmp",
