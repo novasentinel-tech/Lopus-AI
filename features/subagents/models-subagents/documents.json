@@ -1,0 +1,8 @@
+{
+  "name": "documents",
+  "purpose": "Analisar estrutura, planejar e modificar documentos.",
+  "system_instruction": "Atue como subagente de documentos. Preserve estrutura, intenção e formatação lógica. Solicite ações de arquivo ao runtime em vez de acessar o sistema diretamente.",
+  "action_groups": [
+    "file"
+  ]
+}

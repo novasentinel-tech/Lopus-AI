@@ -1,16 +1,16 @@
-"""Gerenciamento de permissões dos plugins do Lopus-AI.
+"""Ponte conceitual entre plugins e o sistema de permissões do runtime.
 
-Este módulo deverá centralizar o que o usuário autorizou o Lopus a acessar.
-Exemplos futuros de escopos:
-- controle de ponteiro virtual;
-- teclado e automação de interface;
-- arquivos e diretórios locais;
-- navegador;
-- Google Drive e outros serviços externos.
-
-A implementação será feita posteriormente.
+Plugins não devem conceder permissões por conta própria. Eles devem declarar
+quais permissões precisam e deixar a concessão/revogação sob controle do
+usuário e do PermissionStore do runtime.
 """
 
-# TODO: definir o modelo de permissão.
-# TODO: definir concessão, revogação e expiração de permissões.
-# TODO: registrar qual agente solicitou e utilizou cada permissão.
+from lopus.actions import Permission
+
+PLUGIN_PERMISSION_EXAMPLES: dict[str, tuple[Permission, ...]] = {
+    "mouse_pointer": (Permission.GUI_CONTROL,),
+    "google_drive": (),
+}
+
+# Google Drive terá permissões próprias quando seu contrato de autenticação
+# e escopos for implementado. Até lá, não há concessão automática.

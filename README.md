@@ -1,23 +1,27 @@
 # Lopus-AI
 
-O **Lopus-AI** é um projeto pessoal e experimental de inteligência artificial autônoma, criado para estudar e desenvolver uma base local, modular e progressivamente capaz de executar tarefas com modelos de IA, memória, ferramentas, plugins e subagentes.
+O **Lopus-AI** é um projeto pessoal e experimental de inteligência artificial autônoma, criado para estudar uma arquitetura local, modular e progressivamente capaz de executar tarefas com modelos de IA, memória, ações, features, plugins e subagentes.
 
 O projeto existe como espaço de pesquisa, aprendizado e desenvolvimento técnico. **Não possui objetivo financeiro ou comercial e não representa uma oferta de produto ou serviço.**
 
-> **Estado atual:** primeiro MVP funcional de terminal. O runtime já pode operar em modo de demonstração ou conversar com um modelo local por meio do Ollama.
+> **Versão atual:** `0.2.0` — runtime funcional de terminal + primeira camada de ações utilitárias e permissões.
 
 ## O que já funciona
 
 - interface de terminal (`lopus`);
 - runtime central;
 - memória volátil da sessão;
-- contrato comum para providers de modelos;
-- provider de demonstração sem LLM;
-- provider local via Ollama;
-- comandos de status, limpeza da sessão e saída;
-- testes básicos do runtime e da memória.
+- provider de demonstração e provider local via Ollama;
+- registro de ações utilitárias;
+- permissões de sessão;
+- leitura, escrita e inspeção básica de arquivos de texto;
+- abertura de arquivos/pastas pelo sistema;
+- execução explícita de comandos com permissão;
+- estrutura modular de features;
+- perfis iniciais de subagentes;
+- testes básicos de memória, runtime e ações.
 
-## Executar o MVP
+## Executar
 
 Requer Python 3.11 ou superior.
 
@@ -33,51 +37,88 @@ pip install -e .
 lopus
 ```
 
-Por padrão, o Lopus inicia em `demo`, permitindo validar toda a arquitetura sem depender de um modelo.
-
-### Modelo local com Ollama
-
-Com Ollama instalado e um modelo disponível:
+Para usar um modelo local com Ollama:
 
 ```bash
 lopus --provider ollama --model seu-modelo
 ```
 
-Também é possível configurar pelas variáveis descritas em `.env.example`.
+## Permissões no terminal
 
-## Estrutura
+As ações externas começam sem permissão.
+
+Exemplo para permitir que o runtime abra um arquivo durante a sessão:
+
+```text
+/grant file.open
+/open "C:\caminho\arquivo.docx"
+```
+
+Use `/permissions` para conferir permissões e `/revoke file.open` para revogar.
+
+## Organização
 
 ```text
 Lopus-AI/
-├── docs/                       # arquitetura e documentação técnica
-├── examples/                   # exemplos futuros
-├── features/                   # features experimentais desenvolvidas separadamente
-│   ├── context_reorganization.py
-│   └── subagents.py
-├── plugins/                    # integrações e acessos sujeitos a permissão
+├── docs/
+│   ├── architecture.md
+│   ├── actions.md
+│   └── mvp.md
+├── features/
+│   ├── context_reorganization/
+│   │   └── feature.py
+│   ├── documents/
+│   │   ├── feature.py
+│   │   └── structure.py
+│   └── subagents/
+│       ├── manager.py
+│       └── models-subagents/
+│           ├── mathematics.json
+│           ├── documents.json
+│           ├── programming.json
+│           └── screen_organization.json
+├── plugins/
 │   ├── permissions.py
 │   ├── mouse_pointer.py
 │   └── google_drive.py
 ├── src/lopus/
-│   ├── agents/                 # comportamento do agente principal
-│   ├── core/                   # runtime e tipos centrais
-│   ├── interfaces/             # CLI e interfaces futuras
-│   ├── memory/                 # memória da sessão
-│   ├── models/                 # providers de modelos
-│   └── tools/                  # registro de ferramentas
-├── tests/
-├── .env.example
-├── LICENSE
-└── pyproject.toml
+│   ├── actions/
+│   ├── agents/
+│   ├── core/
+│   ├── interfaces/
+│   ├── memory/
+│   ├── models/
+│   └── tools/
+└── tests/
 ```
 
-## Direção do projeto
+## Actions, Features e Plugins
 
-O desenvolvimento será incremental. Features como reorganização de contexto, subagentes, plugins, ponteiro virtual, integrações externas e execução autônoma serão implementadas e melhoradas uma por uma.
+**Action** é uma operação reutilizável e pequena, como `file.open` ou `file.read_text`.
 
-Nenhum acesso ao computador, navegador, arquivos ou serviços externos deverá ser presumido. Capacidades externas deverão depender de autorização explícita e de escopo definido pelo usuário.
+**Feature** é uma capacidade maior, como trabalhar com documentos. Ela combina estrutura, regras e várias ações.
 
-A documentação do primeiro MVP está em [`docs/mvp.md`](docs/mvp.md).
+**Plugin** conecta o Lopus a algo externo, como GUI, Google Drive ou outro serviço. O plugin não deve ganhar acesso automaticamente: as permissões continuam sob controle do usuário.
+
+Isso permite que uma feature de documentos peça apenas:
+
+```text
+"abra este documento"
+```
+
+sem precisar saber se o runtime vai usar integração nativa do sistema, PowerShell/Bash ou, futuramente, cliques por um controlador gráfico autorizado.
+
+## Subagentes
+
+A feature `subagents/` possui perfis especializados iniciais para matemática, documentos, programação e organização da tela.
+
+Esses perfis não são modelos treinados e não recebem permissões automaticamente. Eles descrevem funções especializadas que poderão ser atribuídas a agentes temporários no futuro.
+
+## Desenvolvimento
+
+O Lopus será evoluído feature por feature. A intenção é melhorar cada módulo isoladamente antes de aumentar a autonomia do sistema.
+
+A arquitetura de ações está documentada em [`docs/actions.md`](docs/actions.md).
 
 ## Licença e uso do código
 

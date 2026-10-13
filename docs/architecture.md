@@ -1,16 +1,41 @@
-# Lopus-AI Architecture
+# Arquitetura do Lopus-AI
 
-This document will evolve together with the implementation.
+O Lopus é dividido em camadas para evitar que uma feature precise conhecer detalhes de sistema operacional, autenticação ou interface gráfica.
 
-## Initial boundaries
+```text
+Usuário
+  ↓
+Interface
+  ↓
+LopusRuntime
+  ├── Modelo
+  ├── Memória
+  ├── PermissionStore
+  └── ActionRegistry
+         ↑
+      Features
+         ↑
+      Subagentes
+         ↓
+      Plugins / SO / serviços externos
+```
 
-The project is divided into a few independent areas:
+## Runtime
 
-- **core** — runtime and orchestration primitives.
-- **models** — model providers and model selection.
-- **memory** — context and persistent memory experiments.
-- **tools** — executable capabilities exposed to the runtime.
-- **agents** — higher-level autonomous behaviors.
-- **interfaces** — ways for a user or another application to interact with Lopus.
+Coordena conversa, memória, providers, permissões e ações disponíveis.
 
-No final architecture is assumed at this stage. Decisions should be recorded here as the corresponding modules are implemented.
+## Actions
+
+Operações reutilizáveis e controladas por permissão. Exemplos: abrir um arquivo, ler texto ou executar um comando autorizado.
+
+## Features
+
+Capacidades de alto nível. Cada feature possui uma pasta própria. A feature deve solicitar ações ao runtime em vez de implementar diretamente automação de sistema.
+
+## Plugins
+
+Adaptadores externos. Um plugin pode oferecer controle de GUI, integração com um serviço ou outra capacidade que não pertence ao núcleo.
+
+## Subagentes
+
+Perfis especializados que futuramente poderão receber objetivos menores. Eles não herdam acesso irrestrito; ações e permissões continuam sendo controladas pelo runtime.

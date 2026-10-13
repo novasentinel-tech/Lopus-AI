@@ -1,12 +1,17 @@
 # Features
 
-Esta pasta reúne capacidades internas do Lopus-AI.
+Cada capacidade de alto nível do Lopus deve possuir sua própria pasta.
 
-Diferente de `plugins/`, uma feature não representa necessariamente acesso a um serviço externo ou ao sistema operacional. Ela descreve uma capacidade do próprio Lopus.
+Uma feature não deve controlar diretamente detalhes do sistema operacional quando já existir uma ação utilitária para isso. Por exemplo, a feature de documentos solicita `file.open`; quem decide como abrir o arquivo é a camada de ações, de acordo com as permissões e capacidades conectadas.
 
-## Estrutura inicial
+Estrutura atual:
 
-- `context_reorganization.py` — reorganização e compactação do contexto da conversa.
-- `subagents.py` — criação e gerenciamento de subagentes para tarefas específicas.
+```text
+features/
+├── context_reorganization/
+├── documents/
+└── subagents/
+    └── models-subagents/
+```
 
-As implementações serão adicionadas progressivamente durante o desenvolvimento do projeto.
+A intenção é manter cada feature isolada, documentada e evoluível sem transformar o runtime central em um bloco monolítico.
