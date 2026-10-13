@@ -8,6 +8,11 @@ from lopus.actions.base import (
     Permission,
 )
 from lopus.actions.defaults import create_default_action_registry
+from lopus.actions.native_input import (
+    CursorPositionAction,
+    MoveCursorAction,
+    NativeSystemInfoAction,
+)
 from lopus.actions.permissions import PermissionDeniedError, PermissionStore
 from lopus.actions.registry import ActionRegistry
 
@@ -17,6 +22,9 @@ __all__ = [
     "ActionError",
     "ActionRegistry",
     "ActionResult",
+    "CursorPositionAction",
+    "MoveCursorAction",
+    "NativeSystemInfoAction",
     "Permission",
     "PermissionDeniedError",
     "PermissionStore",

@@ -1,10 +1,10 @@
 # Lopus-AI
 
-O **Lopus-AI** é um projeto pessoal e experimental de inteligência artificial autônoma, criado para estudar e desenvolver um agente local, modular e progressivamente capaz de utilizar modelos de IA, memória, ações, features, plugins e subagentes.
+O **Lopus-AI** é um projeto pessoal e experimental de inteligência artificial autônoma, criado para estudar e desenvolver um agente local, modular e progressivamente capaz de utilizar modelos de IA, memória, ações, features, plugins, subagentes e uma camada nativa de baixo nível.
 
 O projeto existe como espaço de pesquisa, aprendizado e desenvolvimento técnico. **Não possui objetivo financeiro ou comercial e não representa uma oferta de produto ou serviço.**
 
-> **Estado atual:** painel desktop local em NiceGUI + runtime funcional + integração com modelos locais por Ollama.
+> **Estado atual:** painel local em NiceGUI + runtime funcional + Ollama + Actions/Permissions + primeiro Native Core em C++.
 
 ## Executar
 
@@ -22,17 +22,17 @@ pip install -e .
 lopus
 ```
 
-`lopus` abre o painel local em modo nativo.
+`pip install -e .` também compila a extensão C++ `lopus_native`. No Windows é necessário ter o Visual Studio Build Tools com suporte a C++ instalado.
 
-A CLI anterior continua disponível:
+A CLI continua disponível:
 
 ```bash
 lopus-cli
 ```
 
-## Testar no GitHub Codespaces
+## Codespaces
 
-O Codespaces pode ser usado para testar o painel e a navegação sem depender do ambiente desktop real.
+No GitHub Codespaces o Lopus detecta o ambiente automaticamente e inicia o NiceGUI em modo web na porta `8080`.
 
 ```bash
 python -m venv .venv
@@ -41,29 +41,7 @@ pip install -e .
 lopus
 ```
 
-O Lopus detecta o Codespaces automaticamente e inicia o NiceGUI em modo web na porta `8080`. Depois, abra a aba **Ports** do Codespaces e use **Open in Browser** na porta `8080`.
-
-Para testar somente a interface, escolha **Continuar em modo demo** no setup inicial. Plugins que dependem do sistema operacional, mouse, aplicativos desktop ou recursos locais devem ser testados na máquina real.
-
-## Painel local
-
-Na primeira execução, o Lopus abre um assistente de configuração para:
-
-1. detectar o Ollama;
-2. escolher um modelo local;
-3. baixar o modelo;
-4. definir o modelo ativo;
-5. entrar no painel principal.
-
-O painel atual contém:
-
-- **Início** — resumo do estado do sistema;
-- **Chat** — conversa com o runtime configurado;
-- **Modelos** — modelos instalados e catálogo sugerido;
-- **Features** — capacidades internas descobertas por manifest;
-- **Plugins** — integrações externas e permissões do runtime.
-
-As configurações são persistidas localmente em `~/.lopus/settings.json`.
+Use **PORTS → 8080 → Open in Browser**. O Codespaces é indicado para testar painel, arquitetura e lógica; integrações reais com mouse e desktop devem ser testadas na máquina local.
 
 ## Arquitetura
 
@@ -78,12 +56,13 @@ Lopus Runtime
   ├── Action Registry
   └── Permission Store
         ↓
-Features
-  ├── context_reorganization/
-  ├── documents/
-  └── subagents/
+Features / Agents
         ↓
 Actions
+  ├── Python
+  └── NativeBridge
+        ↓
+  lopus_native (C++)
         ↓
 Plugins / sistema operacional
 ```
@@ -94,21 +73,42 @@ Cada feature possui sua própria pasta e um `manifest.json`. O painel descobre e
 
 ### Actions
 
-Ações são operações utilitárias reutilizáveis, como `file.inspect`, `file.read_text`, `file.write_text`, `file.open` e `system.run_command`. Uma feature solicita uma ação; a ação valida permissões e decide como executar.
+Ações são operações utilitárias reutilizáveis. Features solicitam Actions em vez de acoplar diretamente lógica de shell, filesystem, GUI ou C++.
 
-### Plugins
+### Native Core
+
+O primeiro backend C++ é compilado como módulo Python via pybind11. Atualmente ele fornece informações nativas do processo e, no Windows, primitivas de cursor/tela.
+
+O runtime expõe essas primitivas por Actions protegidas:
+
+- `system.native_info`;
+- `gui.cursor_position` (`gui.control`);
+- `gui.move_cursor` (`gui.control`).
+
+O movimento atual atua sobre o cursor real do Windows. O futuro **segundo ponteiro virtual** será implementado como uma camada separada.
+
+### Plugins e permissões
 
 Plugins representam acesso a recursos externos ou ao sistema operacional. Ativar um plugin **não concede automaticamente suas permissões**.
 
-## Modelos locais
+## Painel local
 
-O painel usa o Ollama como primeiro runtime local. O catálogo inicial contém sugestões compactas, mas outros modelos instalados no Ollama também podem ser usados.
+O painel possui atualmente:
+
+- **Início** — modelo, features, plugins, permissões e status do Native Core;
+- **Chat** — conversa com o runtime configurado;
+- **Modelos** — modelos instalados e catálogo sugerido;
+- **Features** — descoberta automática via manifests;
+- **Plugins** — integrações e permissões.
+
+As configurações são persistidas em `~/.lopus/settings.json`.
 
 ## Documentação
 
 - [`docs/mvp.md`](docs/mvp.md)
 - [`docs/actions.md`](docs/actions.md)
 - [`docs/ui.md`](docs/ui.md)
+- [`docs/native-core.md`](docs/native-core.md)
 - [`docs/architecture.md`](docs/architecture.md)
 
 ## Licença e uso do código
