@@ -6,10 +6,12 @@ from lopus.actions import (
     ActionContext,
     ClickAction,
     CursorPositionAction,
+    HotkeyAction,
     MoveCursorAction,
     Permission,
     PermissionDeniedError,
     PermissionStore,
+    PressKeyAction,
     TypeTextAction,
 )
 
@@ -19,6 +21,8 @@ class FakeNativeBridge:
         self.position = (12, 34)
         self.clicks: list[str] = []
         self.typed: list[str] = []
+        self.keys: list[str] = []
+        self.hotkeys: list[list[str]] = []
 
     def primary_screen_size(self) -> tuple[int, int]:
         return (1920, 1080)
@@ -34,6 +38,12 @@ class FakeNativeBridge:
 
     def type_text(self, text: str) -> None:
         self.typed.append(text)
+
+    def press_key(self, key: str) -> None:
+        self.keys.append(key)
+
+    def hotkey(self, keys: list[str]) -> None:
+        self.hotkeys.append(list(keys))
 
 
 class NativeActionTests(unittest.TestCase):
@@ -74,6 +84,18 @@ class NativeActionTests(unittest.TestCase):
         self.permissions.grant(Permission.KEYBOARD_CONTROL)
         action.run(self.context, text="Olá")
         self.assertEqual(["Olá"], self.bridge.typed)
+
+    def test_press_key_and_hotkey_use_keyboard_permission(self) -> None:
+        press = PressKeyAction(self.bridge)  # type: ignore[arg-type]
+        hotkey = HotkeyAction(self.bridge)  # type: ignore[arg-type]
+        with self.assertRaises(PermissionDeniedError):
+            press.run(self.context, key="enter")
+
+        self.permissions.grant(Permission.KEYBOARD_CONTROL)
+        press.run(self.context, key="enter")
+        hotkey.run(self.context, keys=["ctrl", "l"])
+        self.assertEqual(["enter"], self.bridge.keys)
+        self.assertEqual([["ctrl", "l"]], self.bridge.hotkeys)
 
 
 if __name__ == "__main__":
