@@ -11,7 +11,12 @@ from lopus.actions.native_input import (
 )
 from lopus.actions.permissions import PermissionDeniedError, PermissionStore
 from lopus.actions.registry import ActionRegistry
-from lopus.actions.vision import CaptureScreenAction, FindTextOnScreenAction, ReadScreenAction
+from lopus.actions.vision import (
+    CaptureScreenAction,
+    ClickTextAction,
+    FindTextOnScreenAction,
+    ReadScreenAction,
+)
 
 __all__ = [
     "Action",
@@ -21,6 +26,7 @@ __all__ = [
     "ActionResult",
     "CaptureScreenAction",
     "ClickAction",
+    "ClickTextAction",
     "CursorPositionAction",
     "FindTextOnScreenAction",
     "MoveCursorAction",
