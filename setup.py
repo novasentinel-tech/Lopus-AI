@@ -3,13 +3,9 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup
-
-ROOT = Path(__file__).parent
-NATIVE = ROOT / "native"
 
 compile_args = ["/utf-8"] if sys.platform == "win32" else ["-Wall", "-Wextra", "-Wpedantic"]
 define_macros = [("NOMINMAX", "1")] if sys.platform == "win32" else []
@@ -19,12 +15,12 @@ ext_modules = [
     Pybind11Extension(
         "lopus_native",
         [
-            str(NATIVE / "src" / "module.cpp"),
-            str(NATIVE / "src" / "system.cpp"),
-            str(NATIVE / "src" / "input.cpp"),
-            str(NATIVE / "src" / "screen.cpp"),
+            "native/src/module.cpp",
+            "native/src/system.cpp",
+            "native/src/input.cpp",
+            "native/src/screen.cpp",
         ],
-        include_dirs=[str(NATIVE / "include")],
+        include_dirs=["native/include"],
         define_macros=define_macros,
         libraries=libraries,
         extra_compile_args=compile_args,
