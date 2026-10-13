@@ -22,6 +22,7 @@ class NativeCapabilities:
     platform: str
     process_id: int | None
     gui_input_supported: bool
+    screen_capture_supported: bool
     primary_screen_size: tuple[int, int] | None
     backend_version: str | None
     error: str | None = None
@@ -66,6 +67,9 @@ class NativeBridge:
     def gui_input_supported(self) -> bool:
         return bool(self._require().gui_input_supported())
 
+    def screen_capture_supported(self) -> bool:
+        return bool(self._require().screen_capture_supported())
+
     def cursor_position(self) -> tuple[int, int]:
         try:
             x, y = self._require().cursor_position()
@@ -76,9 +80,21 @@ class NativeBridge:
             raise NativeOperationError(str(exc)) from exc
 
     def move_cursor(self, x: int, y: int) -> None:
+        self._call_native("move_cursor", int(x), int(y))
+
+    def click_mouse(self, button: str = "left") -> None:
+        self._call_native("click_mouse", str(button))
+
+    def type_text(self, text: str) -> None:
+        self._call_native("type_text_utf8", str(text))
+
+    def capture_primary_screen_bmp(self) -> bytes:
         try:
-            self._require().move_cursor(int(x), int(y))
-        except NativeBackendUnavailableError:
+            data = self._require().capture_primary_screen_bmp()
+            if not isinstance(data, (bytes, bytearray)):
+                raise NativeOperationError("O Native Core retornou uma captura inválida.")
+            return bytes(data)
+        except (NativeBackendUnavailableError, NativeOperationError):
             raise
         except Exception as exc:
             raise NativeOperationError(str(exc)) from exc
@@ -92,6 +108,14 @@ class NativeBridge:
         except Exception as exc:
             raise NativeOperationError(str(exc)) from exc
 
+    def _call_native(self, function_name: str, *args: Any) -> None:
+        try:
+            getattr(self._require(), function_name)(*args)
+        except NativeBackendUnavailableError:
+            raise
+        except Exception as exc:
+            raise NativeOperationError(str(exc)) from exc
+
     def capabilities(self) -> NativeCapabilities:
         if not self.available:
             return NativeCapabilities(
@@ -99,6 +123,7 @@ class NativeBridge:
                 platform="unknown",
                 process_id=None,
                 gui_input_supported=False,
+                screen_capture_supported=False,
                 primary_screen_size=None,
                 backend_version=None,
                 error=self._import_error,
@@ -107,8 +132,9 @@ class NativeBridge:
         module = self._require()
         platform = self.platform_name()
         gui_supported = self.gui_input_supported()
+        screen_supported = self.screen_capture_supported()
         screen_size: tuple[int, int] | None = None
-        if gui_supported:
+        if gui_supported or screen_supported:
             try:
                 screen_size = self.primary_screen_size()
             except NativeOperationError:
@@ -119,6 +145,7 @@ class NativeBridge:
             platform=platform,
             process_id=self.process_id(),
             gui_input_supported=gui_supported,
+            screen_capture_supported=screen_supported,
             primary_screen_size=screen_size,
             backend_version=str(getattr(module, "__version__", "unknown")),
             error=None,
