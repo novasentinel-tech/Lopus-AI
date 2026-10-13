@@ -146,3 +146,71 @@ class TypeTextAction(Action):
         except (NativeBackendUnavailableError, NativeOperationError) as exc:
             raise ActionError(str(exc)) from exc
         return ActionResult(True, self.name, "Texto digitado pelo backend nativo.", {"characters": len(text)})
+
+
+class PressKeyAction(Action):
+    name = "gui.press_key"
+    description = "Pressiona e solta uma tecla especial, como enter, tab, escape ou uma seta."
+    required_permissions = frozenset({Permission.KEYBOARD_CONTROL})
+    agent_exposed = True
+    parameters_schema = {
+        "type": "object",
+        "properties": {
+            "key": {
+                "type": "string",
+                "description": "Tecla: enter, tab, escape, backspace, delete, setas, home/end, pageup/pagedown, F1-F24, letra ou dígito.",
+            }
+        },
+        "required": ["key"],
+        "additionalProperties": False,
+    }
+
+    def __init__(self, bridge: NativeBridge | None = None) -> None:
+        self.bridge = bridge or NativeBridge()
+
+    def execute(self, context: ActionContext, *, key: str, **kwargs: Any) -> ActionResult:
+        del context, kwargs
+        if not isinstance(key, str) or not key.strip():
+            raise ActionError("Informe uma tecla válida.")
+        try:
+            self.bridge.press_key(key.strip())
+        except (NativeBackendUnavailableError, NativeOperationError) as exc:
+            raise ActionError(str(exc)) from exc
+        return ActionResult(True, self.name, f"Tecla '{key}' pressionada.", {"key": key})
+
+
+class HotkeyAction(Action):
+    name = "gui.hotkey"
+    description = "Executa uma combinação curta de teclas, por exemplo ctrl+l ou ctrl+a."
+    required_permissions = frozenset({Permission.KEYBOARD_CONTROL})
+    agent_exposed = True
+    parameters_schema = {
+        "type": "object",
+        "properties": {
+            "keys": {
+                "type": "array",
+                "items": {"type": "string"},
+                "minItems": 2,
+                "maxItems": 5,
+                "description": "Teclas na ordem de pressionamento, por exemplo ['ctrl', 'l'].",
+            }
+        },
+        "required": ["keys"],
+        "additionalProperties": False,
+    }
+
+    def __init__(self, bridge: NativeBridge | None = None) -> None:
+        self.bridge = bridge or NativeBridge()
+
+    def execute(self, context: ActionContext, *, keys: list[str], **kwargs: Any) -> ActionResult:
+        del context, kwargs
+        if not isinstance(keys, list) or not 2 <= len(keys) <= 5:
+            raise ActionError("Hotkey precisa conter entre 2 e 5 teclas.")
+        normalized = [str(key).strip() for key in keys]
+        if any(not key for key in normalized):
+            raise ActionError("Hotkey contém uma tecla vazia.")
+        try:
+            self.bridge.hotkey(normalized)
+        except (NativeBackendUnavailableError, NativeOperationError) as exc:
+            raise ActionError(str(exc)) from exc
+        return ActionResult(True, self.name, "Hotkey executada.", {"keys": normalized})
