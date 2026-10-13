@@ -1,0 +1,7 @@
+{
+  "id": "keyboard_input",
+  "name": "Entrada de teclado",
+  "description": "Permite ao Lopus digitar texto no elemento atualmente focado quando autorizado.",
+  "version": "0.1.0",
+  "permissions": ["keyboard.control"]
+}
