@@ -88,6 +88,13 @@ class NativeBridge:
     def type_text(self, text: str) -> None:
         self._call_native("type_text_utf8", str(text))
 
+    def press_key(self, key: str) -> None:
+        self._call_native("press_key", str(key))
+
+    def hotkey(self, keys: list[str] | tuple[str, ...]) -> None:
+        normalized = [str(key) for key in keys]
+        self._call_native("hotkey", normalized)
+
     def capture_primary_screen_bmp(self) -> bytes:
         try:
             data = self._require().capture_primary_screen_bmp()
