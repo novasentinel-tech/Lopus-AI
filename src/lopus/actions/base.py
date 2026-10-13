@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import StrEnum
@@ -14,6 +15,8 @@ class Permission(StrEnum):
     FILE_OPEN = "file.open"
     SHELL_EXECUTE = "shell.execute"
     GUI_CONTROL = "gui.control"
+    KEYBOARD_CONTROL = "keyboard.control"
+    SCREEN_CAPTURE = "screen.capture"
 
 
 class PermissionChecker(Protocol):
@@ -43,6 +46,27 @@ class Action(ABC):
     name: str
     description: str = ""
     required_permissions: frozenset[Permission] = frozenset()
+    parameters_schema: Mapping[str, Any] = {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": False,
+    }
+    agent_exposed: bool = False
+
+    @property
+    def tool_name(self) -> str:
+        """Nome seguro para APIs de function/tool calling."""
+        return re.sub(r"[^a-zA-Z0-9_-]", "__", self.name)
+
+    def tool_schema(self) -> dict[str, Any]:
+        return {
+            "type": "function",
+            "function": {
+                "name": self.tool_name,
+                "description": self.description,
+                "parameters": dict(self.parameters_schema),
+            },
+        }
 
     def run(self, context: ActionContext, **kwargs: Any) -> ActionResult:
         context.permissions.require(*self.required_permissions)
