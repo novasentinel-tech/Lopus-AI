@@ -71,11 +71,25 @@ class RapidOCREngine:
         return self._engine
 
     @staticmethod
+    def _as_list(value: Any) -> list[Any]:
+        if value is None:
+            return []
+        if hasattr(value, "tolist"):
+            value = value.tolist()
+        if isinstance(value, tuple):
+            return list(value)
+        if isinstance(value, list):
+            return value
+        return [value]
+
+    @staticmethod
     def _normalize_box(raw_box: Any) -> tuple[tuple[int, int], ...]:
         if hasattr(raw_box, "tolist"):
             raw_box = raw_box.tolist()
+        if raw_box is None:
+            return ()
         points: list[tuple[int, int]] = []
-        for point in raw_box or []:
+        for point in raw_box:
             if hasattr(point, "tolist"):
                 point = point.tolist()
             if not isinstance(point, (list, tuple)) or len(point) < 2:
@@ -84,34 +98,35 @@ class RapidOCREngine:
         return tuple(points)
 
     def recognize(self, encoded_image: bytes, *, min_confidence: float = 0.35) -> tuple[OCRRegion, ...]:
+        if not 0.0 <= min_confidence <= 1.0:
+            raise ValueError("min_confidence deve estar entre 0 e 1.")
         engine = self._require()
         try:
             result = engine(encoded_image)
         except Exception as exc:
             raise OCRUnavailableError(f"Falha durante OCR local: {exc}") from exc
 
-        txts = getattr(result, "txts", None) or []
-        scores = getattr(result, "scores", None) or []
-        boxes = getattr(result, "boxes", None) or []
-
-        if hasattr(txts, "tolist"):
-            txts = txts.tolist()
-        if hasattr(scores, "tolist"):
-            scores = scores.tolist()
-        if hasattr(boxes, "tolist"):
-            boxes = boxes.tolist()
+        txts = self._as_list(getattr(result, "txts", None))
+        scores = self._as_list(getattr(result, "scores", None))
+        boxes = self._as_list(getattr(result, "boxes", None))
 
         regions: list[OCRRegion] = []
         for text, score, box in zip(txts, scores, boxes, strict=False):
             normalized_text = str(text).strip()
-            confidence = float(score)
+            try:
+                confidence = float(score)
+            except (TypeError, ValueError):
+                continue
             if not normalized_text or confidence < min_confidence:
+                continue
+            normalized_box = self._normalize_box(box)
+            if not normalized_box:
                 continue
             regions.append(
                 OCRRegion(
                     text=normalized_text,
                     confidence=confidence,
-                    box=self._normalize_box(box),
+                    box=normalized_box,
                 )
             )
         return tuple(regions)
