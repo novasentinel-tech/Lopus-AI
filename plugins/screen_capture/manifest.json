@@ -1,0 +1,7 @@
+{
+  "id": "screen_capture",
+  "name": "Captura de tela",
+  "description": "Permite ao Lopus observar a tela principal localmente para percepção visual e OCR.",
+  "version": "0.1.0",
+  "permissions": ["screen.capture"]
+}
