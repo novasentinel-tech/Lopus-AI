@@ -1,0 +1,46 @@
+"""Descoberta de features baseada em manifestos JSON."""
+
+from __future__ import annotations
+
+import json
+import os
+from dataclasses import dataclass
+from pathlib import Path
+
+
+@dataclass(frozen=True, slots=True)
+class FeatureManifest:
+    id: str
+    name: str
+    description: str
+    version: str
+    permissions: tuple[str, ...]
+    enabled_by_default: bool = False
+
+
+def _project_root() -> Path:
+    configured = os.getenv("LOPUS_PROJECT_ROOT")
+    if configured:
+        return Path(configured).expanduser().resolve()
+    candidates = [Path.cwd(), *Path.cwd().parents, Path(__file__).resolve().parents[3]]
+    for candidate in candidates:
+        if (candidate / "features").is_dir():
+            return candidate
+    return Path.cwd()
+
+
+class FeatureManager:
+    def __init__(self, directory: Path | None = None) -> None:
+        self.directory = directory or (_project_root() / "features")
+
+    def discover(self) -> tuple[FeatureManifest, ...]:
+        if not self.directory.is_dir():
+            return ()
+        found: list[FeatureManifest] = []
+        for manifest_path in sorted(self.directory.glob("*/manifest.json")):
+            try:
+                data = json.loads(manifest_path.read_text(encoding="utf-8"))
+                found.append(FeatureManifest(id=str(data["id"]), name=str(data["name"]), description=str(data.get("description", "")), version=str(data.get("version", "0.0.0")), permissions=tuple(data.get("permissions", ())), enabled_by_default=bool(data.get("enabled_by_default", False))))
+            except (OSError, json.JSONDecodeError, KeyError, TypeError):
+                continue
+        return tuple(found)

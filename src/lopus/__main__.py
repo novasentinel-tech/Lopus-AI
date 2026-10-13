@@ -1,4 +1,4 @@
-from lopus.interfaces.cli import main
+from lopus.app import main
 
 if __name__ == "__main__":
     main()

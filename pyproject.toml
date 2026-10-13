@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lopus-ai"
-version = "0.2.0"
+version = "0.3.0"
 description = "Projeto experimental de agente de IA local e modular."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -12,10 +12,13 @@ license = { file = "LICENSE" }
 authors = [
   { name = "Joao Pedro Rodrigues Viana" }
 ]
-dependencies = []
+dependencies = [
+  "nicegui[native]>=3.17,<4"
+]
 
 [project.scripts]
-lopus = "lopus.interfaces.cli:main"
+lopus = "lopus.app:main"
+lopus-cli = "lopus.interfaces.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
