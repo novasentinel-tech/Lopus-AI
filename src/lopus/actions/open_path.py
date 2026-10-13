@@ -26,8 +26,23 @@ class GuiPathController(Protocol):
 
 class OpenPathAction(Action):
     name = "file.open"
-    description = "Abre um arquivo ou pasta usando uma estratégia autorizada."
+    description = "Abre um arquivo ou pasta local no aplicativo padrão do sistema."
     required_permissions = frozenset({Permission.FILE_OPEN})
+    agent_exposed = True
+    parameters_schema = {
+        "type": "object",
+        "properties": {
+            "path": {"type": "string", "description": "Caminho local do arquivo ou pasta."},
+            "method": {
+                "type": "string",
+                "enum": ["auto", "native"],
+                "default": "auto",
+                "description": "Para o agente, apenas abertura nativa é exposta por segurança.",
+            },
+        },
+        "required": ["path"],
+        "additionalProperties": False,
+    }
 
     def __init__(
         self,
@@ -72,9 +87,7 @@ class OpenPathAction(Action):
 
         context.permissions.require(Permission.GUI_CONTROL)
         if self.gui_controller is None:
-            raise ActionError(
-                "Nenhum controlador gráfico foi conectado ao OpenPathAction."
-            )
+            raise ActionError("Nenhum controlador gráfico foi conectado ao OpenPathAction.")
         self.gui_controller.open_path(str(target))
         return ActionResult(
             success=True,
@@ -98,7 +111,6 @@ class OpenPathAction(Action):
         escaped = str(path).replace("'", "''")
         if os.name == "nt":
             return Command.powershell(f"Start-Process -FilePath '{escaped}'")
-
         shell_path = str(path).replace("'", "'\"'\"'")
         if sys.platform == "darwin":
             return Command.bash(f"open '{shell_path}'")
